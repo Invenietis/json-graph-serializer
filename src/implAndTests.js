@@ -9,38 +9,50 @@
 // 
 function serialize(o, options) {
     const {prefix,substitor} = Object.assign({prefix:"~$£€"},options);
-    const rP = prefix + "r";
-    const rI = prefix + "i";
+    const rR = prefix + ">";
+    const rI = prefix + "°";
+    const rT = prefix + "þ";
     const marker = Symbol();
     let cleanup = [];
     try
     {
         let c = 0;
-        function markNum(n) { let o = new Number(n);o[marker]=o; return o; }
+        function markObj(o) { o[marker]=1; return o; }
+        function markNum(n) { return markObj( new Number(n) ); }
+        function markTyp(s) { 
+            if( typeof s !== "string" ) throw new Error("Type must be a String.");
+            return markObj( new String(s) );
+        }
         return JSON.stringify(o, function (k, v) {
-            if( k === rP || k === rI ) 
+            if( k === rR || k === rI || k === rT ) 
             {
-                if( v[marker] === v ) return v;
+                if( v !== null && v[marker] ) return v;
                 throw new Error("Conflicting serialization prefix: property '"+k+"' exists.");
             }
-            if (v === null || typeof v !== "object" || v[marker] === v ) return v;
+            if( v === null || typeof v !== "object" || v[marker] ) return v;
             let ref = v[rI];
             if (ref) {
-                if( ref[marker] === ref ) return {[rP]:ref};
+                if( ref[marker] ) return {[rR]:ref};
                 throw new Error("Conflicting serialization prefix: property '"+rI+"' exists.");
             }
             v[rI] = ref = markNum(c++);
             cleanup.push( v );
             if( v instanceof Array ) {
-                v = [ref, ...v];
+                v = markObj([markObj({[rT]:markObj([ref,"A"])}), ...v]);
+            }
+            else if( v instanceof Map ) {
+                v = markObj([markObj({[rT]:markObj([ref,"M"])}), ...[...v].map( e => markObj(e) )]);
+            }
+            else if( v instanceof Set ) {
+                v = markObj([markObj({[rT]:markObj([ref,"S"])}), ...v]);
             }
             else if( substitor ) { 
-                let sv = substitor( v );
+                let sv = substitor( v, rT );
                 if( sv && sv !== v ) { 
-                    sv[rI] = ref;
-                    sv[rP] = markNum(-1);
+                    v = sv;
+                    v[rI] = ref;
+                    v[rT] = markTyp( v[rT] || "" );
                 }
-                v = sv;
             }
             return v;
         });
@@ -56,23 +68,35 @@ function serialize(o, options) {
 // be the same as the prefix used to serialize the graph.
 function deserialize(s, options) {
     const {prefix,activator} = Object.assign({prefix:"~$£€"},options);
-    const rP = prefix + "r";
-    const rI = prefix + "i";
+    const rR = prefix + ">";
+    const rI = prefix + "°";
+    const rT = prefix + "þ";
     let extRef = null;
     let map = [];
     let o = JSON.parse(s, function (k, v) {
-        if( v instanceof Array ) {
-            map[v.splice(0,1)] = v;
+        let type = null;
+        if( v instanceof Array 
+                && v.length > 0 
+                && (type = v[0][rT]) !== undefined ) {
+            v.splice(0,1);
+            switch( type[1] ) {
+                case "A": break;
+                case "M": v = Object.assign(new Map(),{"v":v}); break;
+                case "S": v = Object.assign(new Set(),{"v":v}); break;
+                default: throw new Error( "Expecting typed array to be 'A', 'M' or 'S'." );
+            }   
+            map[type[0]] = v;
         }
         else 
         {
             const idx = v[rI];
-            if (idx !== undefined) {
+            if ( idx !== undefined) {
                 delete v[rI];
-                if( v[rP] === -1 ) {
-                    delete v[rP];
+                if( (type = v[rT]) !== undefined )
+                {
+                    delete v[rT];
                     if( activator ) { 
-                        v = activator( v );
+                        v = activator( v, type );
                         if( v ){
                             if( extRef === null ) extRef = new Set();
                             extRef.add( v );
@@ -84,21 +108,35 @@ function deserialize(s, options) {
         }
         return v;
     });
+    function processA( map, a ) {
+        const len = a.length;
+        for( let i = 0; i < len; ++i ) {
+            const c = a[i];
+            if(c) {
+                const ref = c[rR];
+                if (ref !== undefined) a[i] = map[ref];
+            }
+        }
+    }
     for(let i of map) {
         if( extRef === null || !extRef.has(i) ) 
         {
             if( i instanceof Array ) {
-                for( let idx = 0; idx < i.length; ++idx ) {
-                    let c = i[idx];
-                    if(c) {
-                        const ref = c[rP];
-                        if (ref !== undefined) i[idx] = map[ref];
-                    }
-            }   
+                processA( map, i );
+            }
+            else if( i instanceof Map ) {
+                i.v.forEach( e => processA( map, e ) );
+                i.v.forEach( e => i.set(e[0],e[1]));
+                delete i.v;
+            }
+            else if( i instanceof Set ) {
+                processA( map, i.v );
+                i.v.forEach( e => i.add(e));
+                delete i.v;
             }
             else {
                 for (const p in i) {
-                    const ref = i[p][rP];
+                    const ref = i[p][rR];
                     if (ref !== undefined) i[p] = map[ref];
                 }
             }
@@ -135,13 +173,29 @@ function testWithIdempotence( o, options, test ) {
     console.log( " << Self reference test" );
 })();
 
-// Test array reference.
+// Test array reference with '-' prefix.
+(function() {
+    console.log( ">> Array reference test with '-' prefix" );
+    let a = { arr:["Test"] };
+    a.arr.push( a );
+
+   testWithIdempotence( a, { prefix: "-" } , d => {
+        if( d.arr.length !== 2 ) console.error( "d.arr.length !== 1" );
+        if( d.arr[0] !== "Test" ) console.error( "d.arr[0] !== d" );
+        if( d.arr[1] !== d ) console.error( "d.arr[0] !== d" );
+    });
+
+    console.log( "<< Array reference test" );
+})();
+
+
+// Test array reference
 (function() {
     console.log( ">> Array reference test" );
     let a = { arr:["Test"] };
     a.arr.push( a );
 
-   testWithIdempotence( a, { prefix: "-" } , d => {
+   testWithIdempotence( a , d => {
         if( d.arr.length !== 2 ) console.error( "d.arr.length !== 1" );
         if( d.arr[0] !== "Test" ) console.error( "d.arr[0] !== d" );
         if( d.arr[1] !== d ) console.error( "d.arr[0] !== d" );
@@ -244,10 +298,16 @@ function testWithIdempotence( o, options, test ) {
  
 
 // Conflicting prefix tests. 
-var conflictDemo0 = { C0: 1, "~$£€i": "idx" };
-var conflictDemo1 = { C1: 1, Y:[ { "~$£€i": 9 } ] };
-var conflictDemo2 = { C2: 2, Y:[ { "~$£€r": 9 } ] };
-var conflictDemo3 = { i: 2, Y:[ { "~$£€r": 9 } ] };
+var conflictDemo0i = { "~$£€>": "idx" };
+var conflictDemo0r = { "~$£€>": null };
+var conflictDemo0t = { "~$£€þ": {} };
+var conflictDemo0Ai = [{"~$£€>": "idx"}];
+var conflictDemo0Ar = [{ "~$£€>": null }];
+var conflictDemo0At = [{ "~$£€þ": {} }];
+var conflictDemo1 = { i: 1, Y:[ { "~$£€°": 9 } ] };
+var conflictDemo2 = { i: 2, Y:[ { ">": 9 } ] };
+var conflictDemo3 = { i: 3, Y:[ { "~þ": 9 } ] };
+
 
 function checkConflict( o, options )
 {
@@ -258,7 +318,49 @@ function checkConflict( o, options )
         console.log( "Conflict detected:", error );
     }
 }
-checkConflict( conflictDemo0 );
+checkConflict( conflictDemo0i );
+checkConflict( conflictDemo0r );
+checkConflict( conflictDemo0t );
+checkConflict( conflictDemo0Ai );
+checkConflict( conflictDemo0Ar );
+checkConflict( conflictDemo0At );
 checkConflict( conflictDemo1 );
-checkConflict( conflictDemo2 );
-checkConflict( conflictDemo3, {prefix:""} );
+checkConflict( conflictDemo2, {prefix:""} );
+checkConflict( conflictDemo3, {prefix:"~"} );
+
+// Map object support.
+(function() {
+    console.log( ">> Map object support" );
+    let a = new Map();
+    a.set( 'key', 'value' )
+     .set( 'otherKey', 987 )
+     .set( a, 'the map itself.')
+     .set( 'theMap', a );
+
+    testWithIdempotence( a, null, d => {
+
+    })
+
+    console.log( "<< Map object support" );
+})();
+
+
+// Set object support.
+(function() {
+    console.log( ">> Set object support" );
+    let a = new Set();
+    a.add( 1 )
+     .add( a )
+     .add( 2 );
+
+    testWithIdempotence( a, {prefix:""}, d => {
+        if( !d.has( 1 ) ) console.error( "!d.has( 1 )" ); 
+        if( !d.has( d ) ) console.error( "!d.has( d )" ); 
+        if( !d.has( 2 ) ) console.error( "!d.has( 2 )" ); 
+    })
+
+    console.log( "<< Set object support" );
+})();
+
+
+
