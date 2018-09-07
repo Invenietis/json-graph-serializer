@@ -1,8 +1,8 @@
 {
-  "name": "json-graph-serializer",
+  "name": "@signature/json-graph-serializer",
   "version": "0.0.0",
   "description": "Very simple serializer/deserializer for javascript objects using JSON.stringify/parse, with `replacer` and `reviver` functions to handle references.",
-  "main": "json-graph-serializer.js",
+  "main": "dist/json-graph-serializer.js",
   "module": "src/index.js",
   "scripts": {
     "test": "mocha --require @babel/register",
