@@ -76,7 +76,11 @@ export function deserialize(s /*:string|object*/, options) {
     const rR = prefix + ">";
     const rI = prefix + "°";
     const rT = prefix + "þ";
+    // Collects externally activated instances so that they won't be
+    // processed.
     let extRef = null;
+    // Collects untracked objects  so that they will be processed.
+    let plainObjs = null;
     const map = [];
 
     function rev(k, v) {
@@ -94,6 +98,10 @@ export function deserialize(s /*:string|object*/, options) {
                 }
                 map[type[0]] = v;
             }
+            else {
+                if( plainObjs === null ) plainObjs = new Set();
+                plainObjs.add( v );
+            }
         }
         else if (v !== null) {
             const idx = v[rI];
@@ -110,6 +118,10 @@ export function deserialize(s /*:string|object*/, options) {
                     }
                 }
                 map[idx] = v;
+            }
+            else {
+                if( plainObjs === null ) plainObjs = new Set();
+                plainObjs.add( v );
             }
         }
         return v;
@@ -142,7 +154,7 @@ export function deserialize(s /*:string|object*/, options) {
         ? JSON.parse(s, rev)
         : rev(undefined, d(s));
 
-    // Second step is to handles the collections (array, map and set).
+    // Second step is to handle the collections (array, map and set).
     function processA(map, a) {
         const len = a.length;
         for (let i = 0; i < len; ++i) {
@@ -167,6 +179,24 @@ export function deserialize(s /*:string|object*/, options) {
                 processA(map, i.v);
                 i.v.forEach(e => i.add(e));
                 delete i.v;
+            }
+            else {
+                for (const p in i) {
+                    const o = i[p];
+                    if (o !== null) {
+                        const ref = o[rR];
+                        if (ref !== undefined) i[p] = map[ref];
+                    }
+                }
+            }
+        }
+    }
+    if( plainObjs !== null )
+    {
+        for( let i of plainObjs )
+        {
+            if (i instanceof Array) {
+                processA(map, i);
             }
             else {
                 for (const p in i) {
