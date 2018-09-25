@@ -1,7 +1,8 @@
 import 'chai/register-should';
-import { assert } from 'chai';
+import { assert, expect } from 'chai';
 import { serialize, deserialize } from '../src';
 import { testWithIdempotence } from './util';
+import { inspect } from "util";
 
 describe('serialize() and deserialize()', function () {
     it('should work with embedded graphs', function () {
@@ -215,5 +216,31 @@ describe('serialize() and deserialize()', function () {
             d.has(d).should.equal(true);
             d.has(2).should.equal(true);
         });
+    });
+
+    it('should work with array ref', function () {
+        const e = {
+            "N": 2,
+            "E": [
+                ["M", 37, "OREO", { "°": 53, "ProductId": "OREO", "ProductCode": "7622210021502", "ProductLabel": "Paquet d'Oreo", "ExtraData": null }],
+                ["P", "Product", 50],
+                ["C", 42, 50, { ">": 53 }]
+            ]
+        }
+
+        const e2 = deserialize(e, { prefix: '' });
+
+        console.log(inspect(e2, true, null, true));
+
+        expect(e2).to.not.be.undefined;
+        expect(e2.N).to.equal(2);
+        expect(e2.E.length).to.equal(3);
+        expect(e2.E[0].length).to.equal(4);
+        expect(e2.E[0][3]).to.not.be.undefined;
+        expect(e2.E[0][3]['°']).to.be.undefined;
+        expect(e2.E[2].length).to.equal(4);
+        expect(e2.E[2][3]).to.not.be.undefined;
+        expect(e2.E[2][3]['>']).to.be.undefined;
+        expect(e2.E[2][3]).to.equal(e2.E[0][3]);
     });
 });
