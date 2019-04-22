@@ -60,9 +60,6 @@ namespace CodeCake
             /// </summary>
             public bool IsRelease { get; set; }
 
-            [Obsolete("Use IsRelease instead, and do not use this. This is here only to not break previous Build.cs")]
-            public NuGetRepositoryInfo BuildConfiguration => (NuGetRepositoryInfo)ArtifactRepositories.FirstOrDefault(a => a is NuGetRepositoryInfo);
-
             /// <summary>
             /// Gets the version of the packages.
             /// <see cref="SVersion.IsValid"/> is false if the working folder is not ready to be published.
