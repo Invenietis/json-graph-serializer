@@ -18,43 +18,25 @@ namespace CodeCake
         {
             Cake.Log.Verbosity = Verbosity.Diagnostic;
 
-            var releasesDir = Cake.Directory( "CodeCakeBuilder/Releases" );
-
-            var packageDir = Cake.Directory( "js" );
-            var packageJsonPath = packageDir.Path.CombineWithFilePath( "package.json" ).FullPath;
-            var packageLockJsonPath = packageDir.Path.CombineWithFilePath( "package-lock.json" ).FullPath;
             SimpleRepositoryInfo gitInfo = Cake.GetSimpleRepositoryInfo();
-            CheckRepositoryInfo globalInfo = null;
-            NpmRepository npmInfo = null;
-            
+            StandardGlobalInfo globalInfo = null;
+
             Task( "Check-Repository" )
                 .Does( () =>
                 {
-                    globalInfo = StandardCheckRepositoryWithoutNuget( gitInfo );
-                    globalInfo.AddAndInitRepository( npmInfo = new NpmRepository( Cake, globalInfo, Cake.NpmGetProjectsToPublish().ToList() ) );
-                    if( globalInfo.ShouldStop )
-                    {
-                        Cake.TerminateWithSuccess( "All packages from this commit are already available. Build skipped." );
-                    }
+                    globalInfo = CreateStandardGlobalInfo( gitInfo )
+                                    .AddNPM()
+                                    .SetCIBuildTag()
+                                    .TerminateIfShouldStop();
                 } );
+
             Task( "Clean" )
                 .IsDependentOn( "Check-Repository" )
                 .Does( () =>
                 {
-                    Cake.CreateDirectory(releasesDir);
-                    Cake.CleanDirectories( releasesDir );
+                    Cake.CleanDirectories( globalInfo.ReleasesFolder );
                     Cake.DeleteFiles( "Tests/**/TestResult*.xml" );
-                    // npm run clean
-                    Cake.NpmInstall( new NpmInstallSettings()
-                    {
-                        WorkingDirectory = packageDir
-                    } );
-                    Cake.NpmRunScript( new NpmRunScriptSettings()
-                    {
-                        WorkingDirectory = packageDir,
-                        ScriptName = "clean"
-                    }
-                    );
+                    globalInfo.GetNPMSolution().RunInstallAndClean( globalInfo );
                 } );
 
             Task( "Build" )
@@ -62,12 +44,7 @@ namespace CodeCake
                 .IsDependentOn( "Clean" )
                 .Does( () =>
                 {
-                    Cake.NpmRunScript(
-                        "build",
-                        s => s
-                            .WithLogLevel( NpmLogLevel.Info )
-                            .FromPath( packageDir )
-                    );
+                    globalInfo.GetNPMSolution().RunBuild( globalInfo );
                 } );
 
             Task( "Unit-Testing" )
@@ -76,12 +53,7 @@ namespace CodeCake
                                      || Cake.ReadInteractiveOption( "RunUnitTests", "Run Unit Tests?", 'Y', 'N' ) == 'Y' )
                 .Does( () =>
                 {
-                    Cake.NpmRunScript(
-                        "test",
-                        s => s
-                            .WithLogLevel( NpmLogLevel.Info )
-                            .FromPath( packageDir )
-                    );
+                    globalInfo.GetNPMSolution().RunTest( globalInfo );
                 } );
 
 
@@ -90,7 +62,7 @@ namespace CodeCake
                 .IsDependentOn( "Unit-Testing" )
                 .Does( () =>
                 {
-                    NpmPackWithNewVersion( globalInfo.Version, packageDir, releasesDir );
+                    globalInfo.GetNPMSolution().RunPack( globalInfo );
                 } );
 
             Task( "Push-Packages" )
@@ -98,7 +70,7 @@ namespace CodeCake
                 .WithCriteria( () => gitInfo.IsValid )
                 .Does( () =>
                 {
-                    globalInfo.PushArtifacts( releasesDir );
+                    globalInfo.PushArtifacts();
                 } );
 
             // The Default task for this script can be set here.
