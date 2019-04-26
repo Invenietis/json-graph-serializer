@@ -50,7 +50,11 @@ namespace CodeCake
         /// Runs "npm -i"  and a required clean script on all <see cref="Projects"/>.
         /// </summary>
         /// <param name="cleanScriptName">The script name that must exist in the package.json.</param>
-        public void RunInstallAndClean( StandardGlobalInfo globalInfo, string cleanScriptName = "clean" )
+        /// <param name="scriptMustExist">
+        /// False to only emit a warning and return false if the script doesn't exist instead of
+        /// throwing an exception.
+        /// </param>
+        public void RunInstallAndClean( StandardGlobalInfo globalInfo, string cleanScriptName = "clean", bool scriptMustExist = true )
         {
             foreach( var p in Projects )
             {

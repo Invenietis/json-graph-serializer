@@ -49,7 +49,7 @@ namespace CodeCake
             public SimplePackageJsonFile( NormalizedPath folderPath )
             {
                 JsonFilePath = folderPath.AppendPart( "package.json" );
-                JObject json = JObject.Parse( JsonFilePath );
+                JObject json = JObject.Parse( File.ReadAllText( JsonFilePath ) );
                 Name = json.Value<string>( "name" );
                 Version = json.Value<string>( "version" );
 
@@ -160,10 +160,15 @@ namespace CodeCake
         /// </summary>
         /// <param name="globalInfo">The global information object.</param>
         /// <param name="cleanScriptName">Clean script name.</param>
-        public virtual void RunInstallAndClean( StandardGlobalInfo globalInfo, string cleanScriptName = "clean" )
+        /// <param name="scriptMustExist">
+        /// False to only emit a warning and return false if the script doesn't exist instead of
+        /// throwing an exception.
+        /// </param>
+        /// <returns>False if the script doesn't exist (<paramref name="scriptMustExist"/> is false), otherwise true.</returns>
+        public virtual void RunInstallAndClean( StandardGlobalInfo globalInfo, string cleanScriptName = "clean", bool scriptMustExist = true )
         {
             RunInstall( globalInfo );
-            RunScript( globalInfo, cleanScriptName );
+            RunScript( globalInfo, cleanScriptName, scriptMustExist );
         }
 
         /// <summary>
