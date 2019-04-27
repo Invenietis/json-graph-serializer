@@ -39,7 +39,9 @@ jspm_packages
 obj/
 bin/
 
-Tests/**/TestResult*.xml
-CodeCakeBuilder/UnitTestsDone.*.txt
-Tests/**/Logs/
-Tests/**/CKSetup-WorkingDir/
+[Bb]in/
+[Oo]bj/
+[Rr]elease/
+[Rr]eleases/
+*.suo
+*.user

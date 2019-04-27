@@ -6,10 +6,13 @@
   "types": "src/index.d.ts",
   "module": "src/index.js",
   "scripts": {
-    "clean": "echo 'none'",
     "test": "mocha --require @babel/register",
     "build": "webpack"
   },
+  "files": [
+    "/dist",
+    "/src"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Invenietis/json-graph-serializer.git"

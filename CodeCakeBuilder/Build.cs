@@ -36,7 +36,7 @@ namespace CodeCake
                 {
                     Cake.CleanDirectories( globalInfo.ReleasesFolder );
                     Cake.DeleteFiles( "Tests/**/TestResult*.xml" );
-                    globalInfo.GetNPMSolution().RunInstallAndClean( globalInfo );
+                    globalInfo.GetNPMSolution().RunInstallAndClean( globalInfo, scriptMustExist: false );
                 } );
 
             Task( "Build" )
