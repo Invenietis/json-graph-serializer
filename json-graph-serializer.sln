@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeCakeBuilder", "CodeCake
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "json-graph-serializer", "json-graph-serializer", "{D5A17B66-5B63-48E6-B851-3EAB6ABC42AC}"
 	ProjectSection(SolutionItems) = preProject
+		.babelrc = .babelrc
+		.npmrc = .npmrc
+		package-lock.json = package-lock.json
 		package.json = package.json
+		README.md = README.md
+		webpack.config.js = webpack.config.js
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{FBB84253-906A-4380-A762-0DBD65765DA9}"
