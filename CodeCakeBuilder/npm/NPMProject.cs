@@ -270,6 +270,7 @@ namespace CodeCake
             NPMRCTokenInjector( NormalizedPath path )
             {
                 _npmrcPath = path;
+                Console.WriteLine( ">>>>> " + path + Environment.NewLine + File.ReadAllText( path ) );
             }
 
             static List<string> ReadCommentedLines( NormalizedPath npmrcPath )
@@ -305,7 +306,7 @@ namespace CodeCake
             {
                 File.WriteAllLines(
                     _npmrcPath,
-                    UncommentAndRemoveNotCommented( File.ReadAllLines( _npmrcPath ).ToList() )
+                    UncommentAndRemoveNotCommented( File.ReadAllLines( _npmrcPath ) )
                 );
             }
         }
