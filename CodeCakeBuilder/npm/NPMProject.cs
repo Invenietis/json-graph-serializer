@@ -118,7 +118,7 @@ namespace CodeCake
         {
             globalInfo.Cake.NpmCi( settings =>
             {
-                settings.LogLevel = NpmLogLevel.Info;
+                settings.LogLevel = NpmLogLevel.Warn;
                 settings.WorkingDirectory = DirectoryPath.Path;
             } );
         }
