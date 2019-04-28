@@ -65,7 +65,7 @@ namespace CodeCake
             }
             var target = globalInfo.ReleasesFolder.AppendPart( TGZName );
             globalInfo.Cake.CopyFile( tgz.Path, target.Path );
-            File.Delete( tgz );
+            globalInfo.Cake.DeleteFile( tgz.Path );
         }
 
         public static NPMPublishedProject Load( NormalizedPath directoryPath, string expectedName = null, SVersion v = null )
