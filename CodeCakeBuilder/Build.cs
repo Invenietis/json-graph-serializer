@@ -19,15 +19,14 @@ namespace CodeCake
             Cake.Log.Verbosity = Verbosity.Diagnostic;
 
             SimpleRepositoryInfo gitInfo = Cake.GetSimpleRepositoryInfo();
-            StandardGlobalInfo globalInfo = null;
+            StandardGlobalInfo globalInfo = CreateStandardGlobalInfo( gitInfo )
+                                                .AddNPM()
+                                                .SetCIBuildTag();
 
             Task( "Check-Repository" )
                 .Does( () =>
                 {
-                    globalInfo = CreateStandardGlobalInfo( gitInfo )
-                                    .AddNPM()
-                                    .SetCIBuildTag()
-                                    .TerminateIfShouldStop();
+                    globalInfo.TerminateIfShouldStop();
                 } );
 
             Task( "Clean" )
