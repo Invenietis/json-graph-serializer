@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeCakeBuilder", "CodeCakeBuilder\CodeCakeBuilder.csproj", "{442A32AB-5027-411A-A52B-D61489C694AE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "json-graph-serializer", "json-graph-serializer", "{D5A17B66-5B63-48E6-B851-3EAB6ABC42AC}"
+	ProjectSection(SolutionItems) = preProject
+		.babelrc = .babelrc
+		.npmrc = .npmrc
+		package-lock.json = package-lock.json
+		package.json = package.json
+		README.md = README.md
+		webpack.config.js = webpack.config.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{FBB84253-906A-4380-A762-0DBD65765DA9}"
+	ProjectSection(SolutionItems) = preProject
+		.babelrc = .babelrc
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		appveyor.yml = appveyor.yml
+		NuGet.config = NuGet.config
+		RepositoryInfo.xml = RepositoryInfo.xml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{442A32AB-5027-411A-A52B-D61489C694AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{442A32AB-5027-411A-A52B-D61489C694AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{442A32AB-5027-411A-A52B-D61489C694AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{442A32AB-5027-411A-A52B-D61489C694AE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {17B80DC8-A058-45E8-A5EA-91E860931CE8}
+	EndGlobalSection
+EndGlobal

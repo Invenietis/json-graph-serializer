@@ -1,0 +1,37 @@
+{
+  "name": "@signature/json-graph-serializer",
+  "version": "0.0.0-0",
+  "description": "Very simple serializer/deserializer for javascript objects using JSON.stringify/parse, with `replacer` and `reviver` functions to handle references.",
+  "main": "dist/json-graph-serializer.js",
+  "types": "src/index.d.ts",
+  "module": "src/index.js",
+  "scripts": {
+    "test": "mocha --require @babel/register",
+    "build": "webpack"
+  },
+  "files": [
+    "/dist",
+    "/src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Invenietis/json-graph-serializer.git"
+  },
+  "author": "Signature Code",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Invenietis/json-graph-serializer/issues"
+  },
+  "homepage": "https://github.com/Invenietis/json-graph-serializer#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/register": "^7.0.0",
+    "babel-loader": "^8.0.2",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0"
+  }
+}

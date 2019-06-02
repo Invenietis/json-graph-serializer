@@ -35,3 +35,13 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+.vs/
+obj/
+bin/
+
+[Bb]in/
+[Oo]bj/
+[Rr]elease/
+[Rr]eleases/
+*.suo
+*.user
