@@ -233,10 +233,15 @@ namespace CodeCake
                 {
                     foreach( var view in p.Version.PackageQuality.GetLabels() )
                     {
-                        for( int i = 0; i < 5; i++ )
+                        const int retriesCount  = 10;
+                        for( int i = 1; i < retriesCount+1; i++ )
                         {
                             if( await PromotePackage( basicAuth, view, p ) ) break;
-                            Cake.Information( "Package promotion failed. Retrying in 5 seconds..." );
+                            if( i == retriesCount )
+                            {
+                                Cake.TerminateWithError( $"Package '{p.Name}' promotion to view '@{view}' failed after {retriesCount} retries." );
+                            }
+                            Cake.Information( $"Package promotion failed. Retrying in {i} seconds..." );
                             await System.Threading.Tasks.Task.Delay( 1000 * i );
                         }
                     }
