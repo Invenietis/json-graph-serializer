@@ -34,8 +34,8 @@ namespace CodeCake
                 .Does( () =>
                 {
                     Cake.CleanDirectories( globalInfo.ReleasesFolder );
-                    Cake.DeleteFiles( "Tests/**/TestResult*.xml" );
-                    globalInfo.GetNPMSolution().RunInstallAndClean( globalInfo, scriptMustExist: false );
+                   
+                    globalInfo.GetNPMSolution().RunInstallAndClean( scriptMustExist: false );
                 } );
 
             Task( "Build" )
@@ -43,7 +43,7 @@ namespace CodeCake
                 .IsDependentOn( "Clean" )
                 .Does( () =>
                 {
-                    globalInfo.GetNPMSolution().RunBuild( globalInfo );
+                    globalInfo.GetNPMSolution().RunBuild();
                 } );
 
             Task( "Unit-Testing" )
@@ -52,7 +52,7 @@ namespace CodeCake
                                      || Cake.ReadInteractiveOption( "RunUnitTests", "Run Unit Tests?", 'Y', 'N' ) == 'Y' )
                 .Does( () =>
                 {
-                    globalInfo.GetNPMSolution().RunTest( globalInfo );
+                    globalInfo.GetNPMSolution().RunTest();
                 } );
 
 
@@ -61,7 +61,7 @@ namespace CodeCake
                 .IsDependentOn( "Unit-Testing" )
                 .Does( () =>
                 {
-                    globalInfo.GetNPMSolution().RunPack( globalInfo );
+                    globalInfo.GetNPMSolution().RunPack();
                 } );
 
             Task( "Push-Packages" )
