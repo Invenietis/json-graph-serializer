@@ -3,4 +3,5 @@
     <Branch Name="develop" VersionName="develop" CIVersionMode="LastReleaseBased" />
 
   </Branches>
+  <Debug IgnoreDirtyWorkingFolder="true" />
 </RepositoryInfo>
