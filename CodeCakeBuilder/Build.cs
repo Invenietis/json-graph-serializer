@@ -35,7 +35,7 @@ namespace CodeCake
                 {
                     Cake.CleanDirectories( globalInfo.ReleasesFolder );
                    
-                    globalInfo.GetNPMSolution().RunInstallAndClean( scriptMustExist: false );
+                    globalInfo.GetNPMSolution().Clean();
                 } );
 
             Task( "Build" )
@@ -43,7 +43,7 @@ namespace CodeCake
                 .IsDependentOn( "Clean" )
                 .Does( () =>
                 {
-                    globalInfo.GetNPMSolution().RunBuild();
+                    globalInfo.GetNPMSolution().Build();
                 } );
 
             Task( "Unit-Testing" )
@@ -52,7 +52,7 @@ namespace CodeCake
                                      || Cake.ReadInteractiveOption( "RunUnitTests", "Run Unit Tests?", 'Y', 'N' ) == 'Y' )
                 .Does( () =>
                 {
-                    globalInfo.GetNPMSolution().RunTest();
+                    globalInfo.GetNPMSolution().Test();
                 } );
 
 
