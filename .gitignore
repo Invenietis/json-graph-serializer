@@ -45,3 +45,4 @@ bin/
 [Rr]eleases/
 *.suo
 *.user
+CodeCakeBuilder/UnitTestsDone.*.txt
