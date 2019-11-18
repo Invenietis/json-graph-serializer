@@ -3,7 +3,6 @@ environment:
   CODECAKEBUILDER_SECRET_KEY:
     secure: 8VAzdXgUQaJyFoU3WLf2iPFV/8zPDm9qV4TfOpx8/rg=
 install:
-  - ps: ./CodeCakeBuilder/InstallCredentialProvider.ps1
   - cmd: npm install -g npm@6.9.0
   - ps: Install-Product node 12
 version: build{build}
