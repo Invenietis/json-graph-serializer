@@ -1,5 +1,3 @@
-import 'chai/register-should';
-import { assert, expect } from 'chai';
 import { serialize, deserialize } from '../src';
 import { testWithIdempotence } from './util';
 import { inspect } from "util";
@@ -11,11 +9,10 @@ describe('serialize() and deserialize()', function () {
         a.an.push(a);
         const s = '{"N":2,"G":' + serialize(a) + '}';
         const d = deserialize(s);
-
-        d.N.should.equal(2, 'd.N should be null');
-        d.G.v.should.equal(1, 'd.G.v should be null');
-        d.G.an[0].should.equal(d.G, 'd.G.an[0] should be d.G');
-
+        
+        expect(d.N).toEqual(2, 'd.N should be null');
+        expect(d.G.v).toEqual(1, 'd.G.v should be null');
+        expect(d.G.an[0]).toEqual(d.G, 'd.G.an[0] should be d.G');
     });
 
     it('should work with null references', function () {
@@ -23,11 +20,11 @@ describe('serialize() and deserialize()', function () {
         const a = { v: 1, n: null, an: [null, 2, null] };
 
         testWithIdempotence(a, null, d => {
-            should.equal(d.n, null, 'd.n should be null');
-            should.equal(d.an[0], null, 'd.an[0] should be null');
-            should.equal(d.an[1], 2, 'd.an[1] should be 2');
-            should.equal(d.an[2], null, 'd.an[2] should be null');
-            should.equal(d.v, 1, 'd.v should be 1');
+            expect(d.n).toBeNull();
+            expect(d.an[0]).toBeNull();
+            expect(d.an[1]).toEqual(2, 'd.an[1] should be 2');
+            expect(d.an[2]).toBeNull();
+            expect(d.v).toEqual(1, 'd.v should be 1');
         });
 
     });
@@ -48,8 +45,8 @@ describe('serialize() and deserialize()', function () {
         a.rA = a;
 
         testWithIdempotence(a, null, d => {
-            should.equal(d.rA, d, 'd.rA should be d');
-            should.equal(d.v, 1, 'd.v should be 1');
+            expect(d.rA).toEqual(d, 'd.rA should be d');
+            expect(d.v).toEqual(1);
         });
 
     });
@@ -73,9 +70,9 @@ describe('serialize() and deserialize()', function () {
         a.arr.push(a);
 
         testWithIdempotence(a, { prefix: "-" }, d => {
-            should.equal(d.arr.length, 2, 'd.arr.length should be 2');
-            should.equal(d.arr[0], 'Test', 'd.arr[0] should be Test');
-            should.equal(d.arr[1], d, 'd.arr[1] should be d');
+            expect(d.arr.length).toEqual(2, 'd.arr.length should be 2');
+            expect(d.arr[0]).toEqual('Test', 'd.arr[0] should be Test');
+            expect(d.arr[1]).toEqual(d, 'd.arr[1] should be d');
         });
 
     });
@@ -86,11 +83,11 @@ describe('serialize() and deserialize()', function () {
         a[1].push(a, a[0], a[1]);
 
         testWithIdempotence(a, null, d => {
-            should.equal(d.length, 2);
-            should.equal(d[0][0], d);
-            should.equal(d[1][0], d);
-            should.equal(d[1][1], d[0]);
-            should.equal(d[1][2], d[1]);
+            expect(d.length).toEqual(2);
+            expect(d[0][0]).toEqual(d);
+            expect(d[1][0]).toEqual(d);
+            expect(d[1][1]).toEqual(d[0]);
+            expect(d[1][2]).toEqual(d[1]);
         });
     });
 
@@ -121,7 +118,7 @@ describe('serialize() and deserialize()', function () {
         };
 
         testWithIdempotence(a, options, d => {
-            should.equal(d[0], ext);
+            expect(d[0]).toEqual(ext);
         });
     });
 
@@ -199,9 +196,9 @@ describe('serialize() and deserialize()', function () {
             .set(null, 'nullKey');
 
         testWithIdempotence(a, null, d => {
-            d.get('key').should.equal('value');
-            d.get(null).should.equal('nullKey');
-            should.equal(d.get('nullValue'), null);
+            expect(d.get('key')).toBe('value');
+            expect(d.get(null)).toBe('nullKey');
+            expect(d.get('nullValue')).toBeNull();
         })
     });
 
@@ -212,9 +209,9 @@ describe('serialize() and deserialize()', function () {
             .add(2);
 
         testWithIdempotence(a, { prefix: "" }, d => {
-            d.has(1).should.equal(true);
-            d.has(d).should.equal(true);
-            d.has(2).should.equal(true);
+            expect(d.has(1)).toEqual(true);
+            expect(d.has(d)).toEqual(true);
+            expect(d.has(2)).toEqual(true);
         });
     });
 
@@ -232,15 +229,15 @@ describe('serialize() and deserialize()', function () {
 
         console.log(inspect(e2, true, null, true));
 
-        expect(e2).to.not.be.undefined;
-        expect(e2.N).to.equal(2);
-        expect(e2.E.length).to.equal(3);
-        expect(e2.E[0].length).to.equal(4);
-        expect(e2.E[0][3]).to.not.be.undefined;
-        expect(e2.E[0][3]['°']).to.be.undefined;
-        expect(e2.E[2].length).to.equal(4);
-        expect(e2.E[2][3]).to.not.be.undefined;
-        expect(e2.E[2][3]['>']).to.be.undefined;
-        expect(e2.E[2][3]).to.equal(e2.E[0][3]);
+        expect(e2).not.toBeUndefined();
+        expect(e2.N).toEqual(2);
+        expect(e2.E.length).toEqual(3);
+        expect(e2.E[0].length).toEqual(4);
+        expect(e2.E[0][3]).not.toBeUndefined();
+        expect(e2.E[0][3]['°']).toBeUndefined();
+        expect(e2.E[2].length).toEqual(4);
+        expect(e2.E[2][3]).not.toBeUndefined();
+        expect(e2.E[2][3]['>']).toBeUndefined();
+        expect(e2.E[2][3]).toEqual(e2.E[0][3]);
     });
 });
