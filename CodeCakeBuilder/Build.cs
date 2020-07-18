@@ -1,3 +1,5 @@
+using Cake.Npm;
+using Cake.Npm.RunScript;
 using Cake.Common.IO;
 using Cake.Common.Solution;
 using Cake.Core;
@@ -18,8 +20,7 @@ namespace CodeCake
         {
             Cake.Log.Verbosity = Verbosity.Diagnostic;
 
-            SimpleRepositoryInfo gitInfo = Cake.GetSimpleRepositoryInfo();
-            StandardGlobalInfo globalInfo = CreateStandardGlobalInfo( gitInfo )
+            StandardGlobalInfo globalInfo = CreateStandardGlobalInfo()
                                                 .AddNPM()
                                                 .SetCIBuildTag();
 
@@ -35,7 +36,7 @@ namespace CodeCake
                 {
                     Cake.CleanDirectories( globalInfo.ReleasesFolder );
                    
-                    globalInfo.GetNPMSolution().RunInstallAndClean( scriptMustExist: false );
+                    globalInfo.GetNPMSolution().Clean();
                 } );
 
             Task( "Build" )
@@ -43,7 +44,7 @@ namespace CodeCake
                 .IsDependentOn( "Clean" )
                 .Does( () =>
                 {
-                    globalInfo.GetNPMSolution().RunBuild();
+                    globalInfo.GetNPMSolution().Build();
                 } );
 
             Task( "Unit-Testing" )
@@ -52,12 +53,12 @@ namespace CodeCake
                                      || Cake.ReadInteractiveOption( "RunUnitTests", "Run Unit Tests?", 'Y', 'N' ) == 'Y' )
                 .Does( () =>
                 {
-                    globalInfo.GetNPMSolution().RunTest();
+                    globalInfo.GetNPMSolution().Test();
                 } );
 
 
             Task( "Create-Packages" )
-                .WithCriteria( () => gitInfo.IsValid )
+                .WithCriteria( () => globalInfo.IsValid )
                 .IsDependentOn( "Unit-Testing" )
                 .Does( () =>
                 {
@@ -66,7 +67,7 @@ namespace CodeCake
 
             Task( "Push-Packages" )
                 .IsDependentOn( "Create-Packages" )
-                .WithCriteria( () => gitInfo.IsValid )
+                .WithCriteria( () => globalInfo.IsValid )
                 .Does( () =>
                 {
                     globalInfo.PushArtifacts();
