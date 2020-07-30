@@ -46,3 +46,4 @@ bin/
 *.suo
 *.user
 CodeCakeBuilder/UnitTestsDone.*.txt
+$StObjGen/
