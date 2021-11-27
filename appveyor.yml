@@ -3,7 +3,7 @@ environment:
   CODECAKEBUILDER_SECRET_KEY:
     secure: 8VAzdXgUQaJyFoU3WLf2iPFV/8zPDm9qV4TfOpx8/rg=
 version: build{build}
-image: Visual Studio 2019
+image: Visual Studio 2022
 clone_folder: C:\CKli-World\CK-Core-Projects\json-graph-serializer
 branches:
   only:

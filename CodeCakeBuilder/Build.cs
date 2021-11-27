@@ -13,7 +13,7 @@ using Cake.Npm.RunScript;
 
 namespace CodeCake
 {
-    [AddPath( "%UserProfile%/.nuget/packages/**/tools*" )]
+    
     public partial class Build : CodeCakeHost
     {
         public Build()
@@ -34,7 +34,7 @@ namespace CodeCake
                 .IsDependentOn( "Check-Repository" )
                 .Does( () =>
                 {
-                    Cake.CleanDirectories( globalInfo.ReleasesFolder );
+                    Cake.CleanDirectories( globalInfo.ReleasesFolder.ToString() );
                    
                     globalInfo.GetNPMSolution().Clean();
                 } );
@@ -68,9 +68,9 @@ namespace CodeCake
             Task( "Push-Packages" )
                 .IsDependentOn( "Create-Packages" )
                 .WithCriteria( () => globalInfo.IsValid )
-                .Does( () =>
+                .Does( async () =>
                 {
-                    globalInfo.PushArtifacts();
+                    await globalInfo.PushArtifactsAsync();
                 } );
 
             // The Default task for this script can be set here.
