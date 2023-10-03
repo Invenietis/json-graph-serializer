@@ -53,4 +53,4 @@ console.dir(deserializedGraph); // { hello: 'world', array: [ [Circular] ] }
 ## Limitations
 
 - Only works on mutable objects (freezed objects are not supported).
-- WeakMap and WeakSet are not supported. (Who on earth would like to persist weeak maps?)
+- WeakMap and WeakSet are not supported. (Who on earth would like to persist weak maps?)
